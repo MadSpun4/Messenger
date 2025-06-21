@@ -13,7 +13,6 @@ import {Button, TextField} from "@mui/material";
 // TODO: Check if account already exists
 // TODO: Show error if something went wrong
 const SignUp = () => {
-
     const [createAccountData, setCreateAccountData] = useState<SignUpRequestDTO>({
         fullName: "",
         email: "",

@@ -37,28 +37,41 @@ export const register = (data: SignUpRequestDTO) => async (dispatch: AppDispatch
     }
 };
 
-export const loginUser = (data: LoginRequestDTO) => async (dispatch: AppDispatch): Promise<void> => {
+export const loginUser = (data: LoginRequestDTO) =>
+  async (dispatch: AppDispatch): Promise<void> => {
     try {
-        const res: Response = await fetch(`${BASE_API_URL}/${AUTH_PATH}/signin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-            credentials: "include",
-        });
-
-        const resData: LoginResponseDTO = await res.json();
-        if (resData.token) {
-            localStorage.setItem(TOKEN, resData.token);
-            console.log('Stored token');
+      const res = await fetch(
+        `${BASE_API_URL}/${AUTH_PATH}/signin`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          credentials: 'include',
         }
-        console.log('User logged in: ', resData);
-        dispatch({type: actionTypes.LOGIN_USER, payload: resData});
-    } catch (error: any) {
-        console.error('Login failed: ', error);
+      );
+
+      const resData: LoginResponseDTO & { error?: string } = await res.json();
+
+      if (res.ok && resData.token) {
+        // Успех
+        localStorage.setItem(TOKEN, resData.token);
+        console.log('Stored token');
+        dispatch({ type: actionTypes.LOGIN_USER, payload: resData });
+      } else {
+        // Ошибка сервера (400, 401 и т.д.)
+        const message =
+          resData.error ||
+          `Server responded ${res.status}`;
+        console.error('Login failed:', message);
+        dispatch({ type: actionTypes.LOGIN_ERROR, payload: message });
+      }
+    } catch (err: any) {
+      // Сеть или неожиданный сбой
+      const message = err.message || 'Network error';
+      console.error('Login exception:', message);
+      dispatch({ type: actionTypes.LOGIN_ERROR, payload: message });
     }
-};
+  };
 
 export const currentUser = (token: string) => async (dispatch: AppDispatch): Promise<void> => {
     try {

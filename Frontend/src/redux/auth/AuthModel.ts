@@ -44,4 +44,5 @@ export type AuthReducerState = {
     reqUser: UserDTO | null,
     searchUser: UserDTO[] | null,
     updateUser: ApiResponseDTO | null,
+    error: string | null,
 }
