@@ -7,13 +7,13 @@
    
 2. **Navigate to the Frontend and install the required dependencies:**  
     ```bash
-    cd frontend
+    cd Frontend
     npm install
     ```
    
 3. **Navigate to the Backend and install the required dependencies:**  
     ```bash
-    cd backend
+    cd Backend
     mvn clean install
     ```
    

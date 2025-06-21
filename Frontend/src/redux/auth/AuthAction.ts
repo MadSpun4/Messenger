@@ -14,36 +14,28 @@ import {AppDispatch} from "../Store";
 const AUTH_PATH = 'auth';
 const USER_PATH = 'api/users';
 
-export const register = (data: SignUpRequestDTO) =>
-  async (dispatch: AppDispatch): Promise<void> => {
+export const register = (data: SignUpRequestDTO) => async (dispatch: AppDispatch): Promise<void> => {
     try {
-      const res = await fetch(
-        `${BASE_API_URL}/${AUTH_PATH}/signup`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-          credentials: 'include',
-        }
-      );
-      const resData: LoginResponseDTO & { error?: string } = await res.json();
+        const res: Response = await fetch(`${BASE_API_URL}/${AUTH_PATH}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
 
-      if (res.ok && resData.token) {
-        localStorage.setItem('TOKEN', resData.token);
-        dispatch({ type: actionTypes.REGISTER, payload: resData });
-      } else {
-        const message =
-          resData.error ||
-          `Server responded ${res.status}`;
-        dispatch({ type: actionTypes.REGISTER_ERROR, payload: message });
-      }
-    } catch (err: any) {
-      dispatch({
-        type: actionTypes.REGISTER_ERROR,
-        payload: err.message || 'Network error',
-      });
+        const resData: LoginResponseDTO = await res.json();
+        if (resData.token) {
+            localStorage.setItem(TOKEN, resData.token);
+            console.log('Stored token');
+        }
+        console.log('User registered: ', resData);
+        dispatch({type: actionTypes.REGISTER, payload: resData});
+    } catch (error: any) {
+        console.error('Register failed: ', error);
     }
-  };
+};
 
 export const loginUser = (data: LoginRequestDTO) =>
   async (dispatch: AppDispatch): Promise<void> => {
@@ -61,10 +53,12 @@ export const loginUser = (data: LoginRequestDTO) =>
       const resData: LoginResponseDTO & { error?: string } = await res.json();
 
       if (res.ok && resData.token) {
+        // Успех
         localStorage.setItem(TOKEN, resData.token);
         console.log('Stored token');
         dispatch({ type: actionTypes.LOGIN_USER, payload: resData });
       } else {
+        // Ошибка сервера (400, 401 и т.д.)
         const message =
           resData.error ||
           `Server responded ${res.status}`;
@@ -72,6 +66,7 @@ export const loginUser = (data: LoginRequestDTO) =>
         dispatch({ type: actionTypes.LOGIN_ERROR, payload: message });
       }
     } catch (err: any) {
+      // Сеть или неожиданный сбой
       const message = err.message || 'Network error';
       console.error('Login exception:', message);
       dispatch({ type: actionTypes.LOGIN_ERROR, payload: message });

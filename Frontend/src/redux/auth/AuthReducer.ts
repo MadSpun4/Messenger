@@ -1,7 +1,6 @@
-// src/redux/auth/AuthReducer.ts
-import { AuthReducerState } from './AuthModel';
+import {AuthReducerState} from "./AuthModel";
 import * as actionTypes from './AuthActionType';
-import { Action } from '../CommonModel';
+import {Action} from "../CommonModel";
 
 const initialState: AuthReducerState = {
   signin:     null,
@@ -18,17 +17,7 @@ const authReducer = (
 ): AuthReducerState => {
   switch (action.type) {
     case actionTypes.REGISTER:
-      return {
-        ...state,
-        signup: action.payload,
-        error:  null,
-      };
-
-    case actionTypes.REGISTER_ERROR:
-      return {
-        ...state,
-        error: action.payload,
-      };
+      return { ...state, signup: action.payload };
 
     case actionTypes.LOGIN_USER:
       return {

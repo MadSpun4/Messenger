@@ -9,26 +9,18 @@ import { RootState, AppDispatch } from '../../redux/Store';
 import { AuthReducerState, SignUpRequestDTO } from '../../redux/auth/AuthModel';
 import { currentUser, register } from '../../redux/auth/AuthAction';
 
-
-// TODO: Show error if something went wrong
-const SignUp = () => {
-  const [form, setForm] = useState<SignUpRequestDTO>({
-    fullName: '',
-    email:    '',
-    password: '',
+const SignUp: React.FC = () => {
+  const [form, setForm] = useState<SignUpRequestDTO>({ fullName: '', email: '', password: '' });
+  const [alert, setAlert] = useState<{ open: boolean; msg: string; sev: 'success' | 'error' }>({
+    open: false,
+    msg: '',
+    sev: 'success',
   });
-  const [alert, setAlert] = useState<{
-    open: boolean;
-    msg:  string;
-    sev:  'success' | 'error';
-  }>({ open: false, msg: '', sev: 'success' });
 
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const token = localStorage.getItem(TOKEN);
-  const { reqUser, signup, error } = useSelector<RootState, AuthReducerState>(
-    state => state.auth
-  );
+  const { reqUser, signup, error } = useSelector<RootState, AuthReducerState>((state) => state.auth);
 
   useEffect(() => {
     if (token && !reqUser) {
@@ -49,16 +41,26 @@ const SignUp = () => {
     }
   }, [error]);
 
-  const handleClose = (
-    _e?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleClose = (_e?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') return;
-    setAlert(prev => ({ ...prev, open: false }));
+    setAlert((prev) => ({ ...prev, open: false }));
   };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Валидация полей
+    if (!form.fullName.trim()) {
+      setAlert({ open: true, msg: 'Поле "Имя" не может быть пустым', sev: 'error' });
+      return;
+    }
+    if (!form.email.trim()) {
+      setAlert({ open: true, msg: 'Поле "Email" не может быть пустым', sev: 'error' });
+      return;
+    }
+    if (!form.password.trim()) {
+      setAlert({ open: true, msg: 'Поле "Пароль" не может быть пустым', sev: 'error' });
+      return;
+    }
     dispatch(register(form));
   };
 
@@ -73,7 +75,7 @@ const SignUp = () => {
               label="Enter your full name"
               variant="outlined"
               value={form.fullName}
-              onChange={e => setForm({ ...form, fullName: e.target.value })}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             />
           </div>
           <div>
@@ -84,7 +86,7 @@ const SignUp = () => {
               label="Enter your email"
               variant="outlined"
               value={form.email}
-              onChange={e => setForm({ ...form, email: e.target.value })}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div>
@@ -95,7 +97,7 @@ const SignUp = () => {
               label="Enter your password"
               variant="outlined"
               value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
           </div>
           <div className={styles.button}>
