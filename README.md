@@ -2,7 +2,7 @@
 
 1. **Clone the repository:**  
     ```bash  
-    git clone https://github.com/Zenuls/Messenger.git
+    git clone https://github.com/MadSpun4/Messenger.git
     ```
    
 2. **Navigate to the Frontend and install the required dependencies:**  
