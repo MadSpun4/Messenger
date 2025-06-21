@@ -18,13 +18,11 @@ class UserDetailsServiceTest extends AbstractIntegrationTest {
     @Test
     void loadUserByUsername() {
 
-        // Load user
         String username = "luke.skywalker@test.com";
         UserDetails user = userDetailsService.loadUserByUsername(username);
         assertThat(user.getUsername()).isEqualTo(username);
         assertThat(user.getPassword()).isNotNull();
 
-        // Load non-existing user
         assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername("not.existing@test.com"));
     }
 

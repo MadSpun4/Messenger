@@ -55,10 +55,8 @@ class MessageServiceTest extends AbstractIntegrationTest {
         assertThat(repositoryMessage).isEqualTo(message);
         assertThat(chat.getMessages()).contains(message);
 
-        // Message from non-existing user
         assertThrows(UserException.class, () -> messageService.sendMessage(request, notExistingId));
 
-        // Message to non-existing chat
         SendMessageRequestDTO request2 = new SendMessageRequestDTO(notExistingId, "Should not work");
         assertThrows(ChatException.class, () -> messageService.sendMessage(request2, lukesId));
     }
@@ -66,7 +64,6 @@ class MessageServiceTest extends AbstractIntegrationTest {
     @Test
     void getChatMessages() throws ChatException, UserException, MessageException {
 
-        // Get messages for chat
         User luke = userService.findUserById(lukesId);
         User vader = userService.findUserById(vadersId);
         Message message1 = messageService.findMessageById(lukeAndLeiaMessage1Id);
@@ -74,36 +71,29 @@ class MessageServiceTest extends AbstractIntegrationTest {
         List<Message> result = messageService.getChatMessages(lukeAndLeiaChatId, luke);
         assertThat(result).containsExactlyElementsOf(List.of(message1, message2));
 
-        // Get messages for non-existing chat
         assertThrows(ChatException.class, () -> messageService.getChatMessages(notExistingId, luke));
 
-        // Get messages for user not related to chat
         assertThrows(UserException.class, () -> messageService.getChatMessages(lukeAndLeiaChatId, vader));
     }
 
     @Test
     void findMessageById() throws MessageException {
 
-        // Find message
         Message result = messageService.findMessageById(lukeAndLeiaMessage1Id);
         assertThat(result).isNotNull();
 
-        // Find non-existing message
         assertThrows(MessageException.class, () -> messageService.findMessageById(notExistingId));
     }
 
     @Test
     void deleteMessageById() throws UserException, MessageException {
 
-        // Delete message
         User luke = userService.findUserById(lukesId);
         messageService.deleteMessageById(lukeTheGoodiesMessageId, luke);
         assertThrows(MessageException.class, () -> messageService.findMessageById(lukeTheGoodiesMessageId));
 
-        // Delete non-existing message
         assertThrows(MessageException.class, () -> messageService.deleteMessageById(notExistingId, luke));
 
-        // Delete message not from user
         assertThrows(UserException.class, () -> messageService.deleteMessageById(lukeAndLeiaMessage1Id, luke));
     }
 

@@ -47,7 +47,6 @@ class ChatServiceTest extends AbstractIntegrationTest {
     @Test
     void createChat() throws UserException, ChatException {
 
-        // Create new chat
         User leia = userService.findUserById(leiasId);
         User han = userService.findUserById(hansId);
         Chat result = chatService.createChat(leia, hansId);
@@ -58,18 +57,15 @@ class ChatServiceTest extends AbstractIntegrationTest {
         assertThat(result.getUsers()).containsExactlyInAnyOrderElementsOf(Set.of(leia, han));
         assertThat(repositoryChat).isEqualTo(result);
 
-        // Create already existing chat
         Chat existingChat = chatService.createChat(leia, lukesId);
         assertThat(existingChat.getId()).isEqualTo(lukesAndLeiasChatId);
 
-        // Create chat with non-existing user
         assertThrows(UserException.class, () -> chatService.createChat(leia, notExistingId));
     }
 
     @Test
     void findChatById() throws ChatException, UserException, MessageException {
 
-        // Find existing chat
         User luke = userService.findUserById(lukesId);
         User leia = userService.findUserById(leiasId);
         Message message1 = messageService.findMessageById(messageLukeLeia1Id);
@@ -81,28 +77,24 @@ class ChatServiceTest extends AbstractIntegrationTest {
         assertThat(result.getUsers()).containsExactlyInAnyOrderElementsOf(Set.of(luke, leia));
         assertThat(result.getMessages()).containsExactlyElementsOf(List.of(message1, message2));
 
-        // Find non-existing chat
         assertThrows(ChatException.class, () -> chatService.findChatById(notExistingId));
     }
 
     @Test
     void findAllByUserId() throws UserException, ChatException {
 
-        // Find all by existing user
         List<Chat> result = chatService.findAllByUserId(lukesId);
         Chat chat1 = chatService.findChatById(theGoodiesChatId);
         Chat chat2 = chatService.findChatById(lukesAndLeiasChatId);
         Chat chat3 = chatService.findChatById(vaderAndLukeChatId);
         assertThat(result).containsExactlyElementsOf(List.of(chat1, chat2, chat3));
 
-        // Find all by non-existing user
         assertThrows(UserException.class, () -> chatService.findAllByUserId(notExistingId));
     }
 
     @Test
     void createGroup() throws UserException, ChatException {
 
-        // Create with existing users
         String name = "New Group Chat";
         User leia = userService.findUserById(leiasId);
         User han = userService.findUserById(hansId);
@@ -117,7 +109,6 @@ class ChatServiceTest extends AbstractIntegrationTest {
         assertThat(chat.getChatName()).isEqualTo(name);
         assertThat(chat.getAdmins()).containsExactly(leia);
 
-        // Create with non-existing user
         GroupChatRequestDTO request2 = new GroupChatRequestDTO(List.of(leiasId, notExistingId), "Non existing user chat");
         assertThrows(UserException.class, () -> chatService.createGroup(request2, leia));
     }
@@ -125,36 +116,29 @@ class ChatServiceTest extends AbstractIntegrationTest {
     @Test
     void addUserToGroup() throws UserException, ChatException {
 
-        // Add user to group
         User luke = userService.findUserById(lukesId);
         User vader = userService.findUserById(vadersId);
         Chat result = chatService.addUserToGroup(vadersId, theGoodiesChatId, luke);
         assertThat(result.getUsers()).contains(vader);
 
-        // Add as user that is not admin
         User leia = userService.findUserById(leiasId);
         assertThrows(UserException.class, () -> chatService.addUserToGroup(vadersId, theGoodiesChatId, leia));
 
-        // Add to non-existing group
         assertThrows(ChatException.class, () -> chatService.addUserToGroup(kenobisId, notExistingId, luke));
 
-        // Add non-existing user
         assertThrows(UserException.class, () -> chatService.addUserToGroup(notExistingId, theGoodiesChatId, luke));
     }
 
     @Test
     void renameGroup() throws UserException, ChatException {
 
-        // Rename chat
         String name = "The Goodies renamed";
         User luke = userService.findUserById(lukesId);
         Chat chat = chatService.renameGroup(theGoodiesChatId, name, luke);
         assertThat(chat.getChatName()).isEqualTo(name);
 
-        // Rename non-existing chat
         assertThrows(ChatException.class, () -> chatService.renameGroup(notExistingId, "Should not work", luke));
 
-        // Rename as not admin
         User leia = userService.findUserById(leiasId);
         assertThrows(UserException.class, () -> chatService.renameGroup(theGoodiesChatId, "Should not work", leia));
     }
@@ -162,26 +146,21 @@ class ChatServiceTest extends AbstractIntegrationTest {
     @Test
     void removeFromGroup() throws UserException, ChatException {
 
-        // Remove from Chat
         User luke = userService.findUserById(lukesId);
         User leia = userService.findUserById(leiasId);
         Chat result = chatService.removeFromGroup(theGoodiesChatId, leiasId, luke);
         assertThat(result.getUsers()).isNotEmpty();
         assertThat(result.getUsers()).doesNotContain(leia);
 
-        // Remove self from chat as not admin
         User kenobi = userService.findUserById(kenobisId);
         Chat result2 = chatService.removeFromGroup(theGoodiesChatId, kenobisId, kenobi);
         assertThat(result2.getUsers()).isNotEmpty();
         assertThat(result2.getUsers()).doesNotContain(kenobi);
 
-        // Remove from non-existing chat
         assertThrows(ChatException.class, () -> chatService.removeFromGroup(notExistingId, hansId, luke));
 
-        // Remove non-existing user
         assertThrows(UserException.class, () -> chatService.removeFromGroup(theGoodiesChatId, notExistingId, luke));
 
-        // Remove as not admin
         User han = userService.findUserById(hansId);
         assertThrows(UserException.class, () -> chatService.removeFromGroup(theGoodiesChatId, lukesId, han));
     }
@@ -189,15 +168,12 @@ class ChatServiceTest extends AbstractIntegrationTest {
     @Test
     void markAsRead() throws UserException, ChatException {
 
-        // Mark chat as read
         User luke = userService.findUserById(lukesId);
         Chat result = chatService.markAsRead(theGoodiesChatId, luke);
         result.getMessages().forEach(msg -> assertThat(msg.getReadBy()).contains(luke.getId()));
 
-        // Mark non-existing chat as read
         assertThrows(ChatException.class, () -> chatService.markAsRead(notExistingId, luke));
 
-        // Mark chat as read that user is not a part of
         User vader = userService.findUserById(vadersId);
         assertThrows(UserException.class, () -> chatService.markAsRead(theGoodiesChatId, vader));
     }
@@ -205,20 +181,15 @@ class ChatServiceTest extends AbstractIntegrationTest {
     @Test
     void deleteChat() throws UserException, ChatException {
 
-        // Remove non-existing chat
         assertThrows(ChatException.class, () -> chatService.deleteChat(notExistingId, palpatinesId));
 
-        // Remove chat with non-existing user
         assertThrows(UserException.class, () -> chatService.deleteChat(theGoodiesChatId, notExistingId));
 
-        // Remove group chat as not admin
         assertThrows(UserException.class, () -> chatService.deleteChat(theGoodiesChatId, leiasId));
 
-        // Remove single chat
         chatService.deleteChat(leiaAndKenobisChatId, kenobisId);
         assertThrows(ChatException.class, () -> chatService.findChatById(leiaAndKenobisChatId));
 
-        // Remove group chat as admin
         chatService.deleteChat(theDarkSideChatId, palpatinesId);
         assertThrows(ChatException.class, () -> chatService.findChatById(theDarkSideChatId));
     }

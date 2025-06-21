@@ -35,18 +35,15 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void findUserById() throws UserException {
 
-        // Find user
         User user = userService.findUserById(lukesId);
         assertThat(user.getId()).isEqualTo(lukesId);
 
-        // Find non-existing user
         assertThrows(UserException.class, () -> userService.findUserById(notExistingId));
     }
 
     @Test
     void findUserByProfile() throws UserException {
 
-        // Get user
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -56,7 +53,6 @@ class UserServiceTest extends AbstractIntegrationTest {
         assertThat(user.getId()).isEqualTo(lukesId);
         assertThat(user.getEmail()).isEqualTo(mail);
 
-        // Get user with invalid jwt
         assertThrows(StringIndexOutOfBoundsException.class, () -> userService.findUserByProfile(""));
         assertThrows(IllegalArgumentException.class, () -> userService.findUserByProfile(JwtConstants.TOKEN_PREFIX));
         assertThrows(MalformedJwtException.class, () -> userService.findUserByProfile(JwtConstants.TOKEN_PREFIX + "12345678901234567890"));
@@ -66,7 +62,6 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void updateUser() throws UserException {
 
-        // Update user
         String name = "Anakin Skywalker";
         String mail = "darth.vader@test.com";
         String password = "2345";
@@ -79,19 +74,16 @@ class UserServiceTest extends AbstractIntegrationTest {
         assertThat(user.getPassword()).isNotEqualTo(password);
         assertThat(user).isEqualTo(repositoryUser);
 
-        // Update non-existing user
         assertThrows(UserException.class, () -> userService.updateUser(notExistingId, request));
     }
 
     @Test
     void searchUser() throws UserException {
 
-        // Search user by name
         User luke = userService.findUserById(lukesId);
         List<User> result = userService.searchUser("Luke");
         assertThat(result).containsExactly(luke);
 
-        // Search by mail
         result = userService.searchUser("skywalker@test.com");
         assertThat(result).containsExactly(luke);
     }
@@ -99,7 +91,6 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void searchUserByName() throws UserException {
 
-        // Search by name
         User luke = userService.findUserById(lukesId);
         List<User> result = userService.searchUserByName("Luke Skywalker");
         assertThat(result).containsExactly(luke);
