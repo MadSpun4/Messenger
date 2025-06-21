@@ -61,7 +61,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void createSingleChat() throws UserException, ChatException {
 
-        // Create new chat
         String mail = "leia.organa@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "4567");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -78,18 +77,15 @@ class ChatControllerTest extends AbstractIntegrationTest {
                 Set.of(Objects.requireNonNull(UserDTO.fromUser(leia)), Objects.requireNonNull(UserDTO.fromUser(han))));
         assertThat(repositoryChat).isEqualTo(result);
 
-        // Create already existing chat
         ResponseEntity<ChatDTO> existingChat = chatController.createSingleChat(lukesId, authorization);
         assertThat(Objects.requireNonNull(existingChat.getBody()).id()).isEqualTo(lukesAndLeiasChatId);
 
-        // Create chat with non-existing user
         assertThrows(UserException.class, () -> chatController.createSingleChat(notExistingId, authorization));
     }
 
     @Test
     void createGroupChat() throws UserException, ChatException {
 
-        // Create new chat
         String mail = "leia.organa@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "4567");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -113,7 +109,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void findChatById() throws UserException, MessageException, ChatException {
 
-        // Find existing chat
         User luke = userService.findUserById(lukesId);
         User leia = userService.findUserById(leiasId);
         Message message1 = messageService.findMessageById(messageLukeLeia1Id);
@@ -129,15 +124,12 @@ class ChatControllerTest extends AbstractIntegrationTest {
                 List.of(Objects.requireNonNull(MessageDTO.fromMessage(message1)),
                         Objects.requireNonNull(MessageDTO.fromMessage(message2))));
 
-        // Find non-existing chat
         assertThrows(ChatException.class, () -> chatController.findChatById(notExistingId));
     }
 
     @Test
     void findAllChatsByUserId() throws UserException, ChatException {
 
-        // Find all by existing user
-        // Get user
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -156,7 +148,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void addUserToGroup() throws UserException, ChatException {
 
-        // Add user to group
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -167,14 +158,11 @@ class ChatControllerTest extends AbstractIntegrationTest {
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(Objects.requireNonNull(result.getBody()).users()).contains(UserDTO.fromUser(vader));
 
-        // Add to non-existing group
         String finalAuthorization = authorization;
         assertThrows(ChatException.class, () -> chatController.addUserToGroup(notExistingId, kenobisId, finalAuthorization));
 
-        // Add non-existing user
         assertThrows(UserException.class, () -> chatController.addUserToGroup(theGoodiesChatId, notExistingId, finalAuthorization));
 
-        // Add as user that is not admin
         mail = "leia.organa@test.com";
         request = new LoginRequestDTO(mail, "4567");
         response = authController.login(request).getBody();
@@ -187,7 +175,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void removeUserFromGroup() throws UserException, ChatException {
 
-        // Remove from Chat
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -199,14 +186,11 @@ class ChatControllerTest extends AbstractIntegrationTest {
         assertThat(Objects.requireNonNull(result.getBody()).users()).isNotEmpty();
         assertThat(result.getBody().users()).doesNotContain(UserDTO.fromUser(leia));
 
-        // Remove from non-existing chat
         String finalAuthorization1 = authorization;
         assertThrows(ChatException.class, () -> chatController.removeUserFromGroup(notExistingId, hansId, finalAuthorization1));
 
-        // Remove non-existing user
         assertThrows(UserException.class, () -> chatController.removeUserFromGroup(theGoodiesChatId, notExistingId, finalAuthorization1));
 
-        // Remove self from chat as not admin
         mail = "obiwan.kenobi@test.com";
         request = new LoginRequestDTO(mail, "3456");
         response = authController.login(request).getBody();
@@ -217,7 +201,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
         assertThat(Objects.requireNonNull(result2.getBody()).users()).isNotEmpty();
         assertThat(result2.getBody().users()).doesNotContain(UserDTO.fromUser(kenobi));
 
-        // Remove as not admin
         mail = "han.solo@test.com";
         request = new LoginRequestDTO(mail, "5678");
         response = authController.login(request).getBody();
@@ -230,7 +213,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void markAsRead() throws UserException, ChatException {
 
-        // Mark chat as read
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -241,11 +223,9 @@ class ChatControllerTest extends AbstractIntegrationTest {
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         Objects.requireNonNull(result.getBody()).messages().forEach(msg -> assertThat(msg.readBy()).contains(luke.getId()));
 
-        // Mark non-existing chat as read
         String finalAuthorization = authorization;
         assertThrows(ChatException.class, () -> chatController.markAsRead(notExistingId, finalAuthorization));
 
-        // Mark chat as read that user is not a part of
         mail = "darth.vader@test.com";
         request = new LoginRequestDTO(mail, "2345");
         response = authController.login(request).getBody();
@@ -258,7 +238,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
     @Test
     void deleteChat() throws ChatException, UserException {
 
-        // Remove non-existing chat
         String mail = "imperator.palpatine@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "6789");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -267,11 +246,9 @@ class ChatControllerTest extends AbstractIntegrationTest {
         String finalAuthorization = authorization;
         assertThrows(ChatException.class, () -> chatController.deleteChat(notExistingId, finalAuthorization));
 
-        // Remove group chat as admin
         chatController.deleteChat(theDarkSideChatId, authorization);
         assertThrows(ChatException.class, () -> chatController.findChatById(theDarkSideChatId));
 
-        // Remove group chat as not admin
         mail = "leia.organa@test.com";
         request = new LoginRequestDTO(mail, "4567");
         response = authController.login(request).getBody();
@@ -280,7 +257,6 @@ class ChatControllerTest extends AbstractIntegrationTest {
         String finalAuthorization1 = authorization;
         assertThrows(UserException.class, () -> chatController.deleteChat(theGoodiesChatId, finalAuthorization1));
 
-        // Remove single chat
         mail = "obiwan.kenobi@test.com";
         request = new LoginRequestDTO(mail, "3456");
         response = authController.login(request).getBody();

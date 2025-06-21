@@ -75,7 +75,6 @@ class MessageControllerTest extends AbstractIntegrationTest {
         assertThat(MessageDTO.fromMessage(repositoryMessage)).isEqualTo(message.getBody());
         assertThat(MessageDTO.fromMessages(chat.getMessages())).contains(message.getBody());
 
-        // Message to non-existing chat
         SendMessageRequestDTO request2 = new SendMessageRequestDTO(notExistingId, "Should not work");
         assertThrows(ChatException.class, () -> messageController.sendMessage(request2, authorization));
     }
@@ -83,7 +82,6 @@ class MessageControllerTest extends AbstractIntegrationTest {
     @Test
     void getChatMessages() throws UserException, MessageException, ChatException {
 
-        // Get messages for chat
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -95,11 +93,9 @@ class MessageControllerTest extends AbstractIntegrationTest {
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).containsExactlyElementsOf(List.of(Objects.requireNonNull(MessageDTO.fromMessage(message1)), Objects.requireNonNull(MessageDTO.fromMessage(message2))));
 
-        // Get messages for non-existing chat
         String finalAuthorization = authorization;
         assertThrows(ChatException.class, () -> messageController.getChatMessages(notExistingId, finalAuthorization));
 
-        // Get messages for user not related to chat
         mail = "darth.vader@test.com";
         request = new LoginRequestDTO(mail, "2345");
         response = authController.login(request).getBody();
@@ -112,7 +108,6 @@ class MessageControllerTest extends AbstractIntegrationTest {
     @Test
     void deleteMessage() throws UserException, MessageException {
 
-        // Delete message
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -121,10 +116,8 @@ class MessageControllerTest extends AbstractIntegrationTest {
         messageController.deleteMessage(lukeTheGoodiesMessageId, authorization);
         assertThrows(MessageException.class, () -> messageService.findMessageById(lukeTheGoodiesMessageId));
 
-        // Delete non-existing message
         assertThrows(MessageException.class, () -> messageController.deleteMessage(notExistingId, authorization));
 
-        // Delete message not from user
         assertThrows(UserException.class, () -> messageController.deleteMessage(lukeAndLeiaMessage1Id, authorization));
     }
 

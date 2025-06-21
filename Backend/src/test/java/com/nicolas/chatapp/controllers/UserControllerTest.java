@@ -36,7 +36,7 @@ class UserControllerTest extends AbstractIntegrationTest {
 
     @Test
     void getUserProfile() throws UserException {
-        // Get user
+
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -47,7 +47,6 @@ class UserControllerTest extends AbstractIntegrationTest {
         assertThat(Objects.requireNonNull(result.getBody()).id()).isEqualTo(lukesId);
         assertThat(result.getBody().email()).isEqualTo(mail);
 
-        // Get user with invalid jwt
         assertThrows(StringIndexOutOfBoundsException.class, () -> userController.getUserProfile(""));
         assertThrows(IllegalArgumentException.class, () -> userController.getUserProfile(JwtConstants.TOKEN_PREFIX));
         assertThrows(MalformedJwtException.class, () -> userController.getUserProfile(JwtConstants.TOKEN_PREFIX + "12345678901234567890"));
@@ -57,7 +56,6 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void searchUsers() throws UserException {
 
-        // Search user by name
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
@@ -68,7 +66,6 @@ class UserControllerTest extends AbstractIntegrationTest {
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).containsExactly(luke.getBody());
 
-        // Search by mail
         result = userController.searchUsers("skywalker@test.com");
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).containsExactly(luke.getBody());
@@ -77,7 +74,6 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void searchUsersByName() throws UserException {
 
-        // Search user by name
         String mail = "luke.skywalker@test.com";
         LoginRequestDTO request = new LoginRequestDTO(mail, "1234");
         LoginResponseDTO response = authController.login(request).getBody();
