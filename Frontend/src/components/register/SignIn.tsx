@@ -21,25 +21,21 @@ const SignIn = () => {
   const token: string | null = localStorage.getItem(TOKEN);
   const state: AuthReducerState = useSelector((state: RootState) => state.auth);
 
-  // Если в localStorage уже есть токен — подтягиваем профиль
   useEffect(() => {
     if (token) {
       dispatch(currentUser(token));
     }
   }, [token, dispatch]);
 
-  // Ошибка логина
   useEffect(() => {
     if (state.error) {
       setSnackbar({ open: true, message: state.error, severity: "error" });
     }
   }, [state.error]);
 
-  // Успешный логин
   useEffect(() => {
     if (state.reqUser) {
       setSnackbar({ open: true, message: "Успешный вход!", severity: "success" });
-      // даём время показать снэк, затем переходим
       setTimeout(() => navigate("/"), 1000);
     }
   }, [state.reqUser, navigate]);

@@ -1,6 +1,7 @@
-import {AuthReducerState} from "./AuthModel";
+// src/redux/auth/AuthReducer.ts
+import { AuthReducerState } from './AuthModel';
 import * as actionTypes from './AuthActionType';
-import {Action} from "../CommonModel";
+import { Action } from '../CommonModel';
 
 const initialState: AuthReducerState = {
   signin:     null,
@@ -17,19 +18,29 @@ const authReducer = (
 ): AuthReducerState => {
   switch (action.type) {
     case actionTypes.REGISTER:
-      return { ...state, signup: action.payload };
+      return {
+        ...state,
+        signup: action.payload,
+        error:  null,
+      };
+
+    case actionTypes.REGISTER_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+      };
 
     case actionTypes.LOGIN_USER:
       return {
         ...state,
         signin: action.payload,
-        error:  null,              // ← очищаем предыдущие ошибки
+        error:  null,
       };
 
     case actionTypes.LOGIN_ERROR:
       return {
         ...state,
-        error: action.payload,     // ← сюда попадёт текст ошибки
+        error: action.payload,
       };
 
     case actionTypes.REQ_USER:
@@ -47,7 +58,7 @@ const authReducer = (
         signin:     null,
         signup:     null,
         reqUser:    null,
-        error:      null,          // ← и тут очищаем
+        error:      null,
       };
 
     default:
