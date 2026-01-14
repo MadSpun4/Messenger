@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,15 +29,23 @@ public class MessageController {
 
     private final UserService userService;
     private final MessageService messageService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/create")
     public ResponseEntity<MessageDTO> sendMessage(@RequestBody SendMessageRequestDTO req,
                                                   @RequestHeader(JwtConstants.TOKEN_HEADER) String jwt)
-            throws ChatException, UserException {
+        throws ChatException, UserException {
 
         User user = userService.findUserByProfile(jwt);
         Message message = messageService.sendMessage(req, user.getId());
         log.info("User {} sent message: {}", user.getEmail(), message.getId());
+
+        // Отправка сообщения через WebSocket всем участникам чата
+        if (message.getChat() != null && message.getChat().getUsers() != null) {
+            for (User chatUser : message.getChat().getUsers()) {
+                messagingTemplate.convertAndSend("/topic/" + chatUser.getId(), MessageDTO.fromMessage(message));
+            }
+        }
 
         return new ResponseEntity<>(MessageDTO.fromMessage(message), HttpStatus.OK);
     }
