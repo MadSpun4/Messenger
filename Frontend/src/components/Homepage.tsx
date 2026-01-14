@@ -124,16 +124,33 @@ const Homepage = () => {
         connect();
     }, []);
 
-    const connect = () => {
-        const headers = {
-            Authorization: `${AUTHORIZATION_PREFIX}${token}`
-        };
+    // const connect = () => {
+    //     const headers = {
+    //         Authorization: `${AUTHORIZATION_PREFIX}${token}`
+    //     };
 
-        const socket: WebSocket = new SockJS("http://localhost:8080/ws");
-        const client: Client = over(socket);
-        client.connect(headers, onConnect, onError);
-        setStompClient(client);
+    //     const socket: WebSocket = new SockJS("http://localhost:8080/ws");
+    //     const client: Client = over(socket);
+    //     client.connect(headers, onConnect, onError);
+    //     setStompClient(client);
+    // };
+    
+    const connect = () => {
+    const headers = {
+        Authorization: `${AUTHORIZATION_PREFIX}${token}`
     };
+
+    const currentHost = window.location.hostname;
+    
+    const wsUrl = `http://${currentHost}:8080/ws`;
+    
+    console.log('WebSocket connecting to:', wsUrl);
+    
+    const socket: WebSocket = new SockJS(wsUrl);
+    const client: Client = over(socket);
+    client.connect(headers, onConnect, onError);
+    setStompClient(client);
+};
 
     const onConnect = async () => {
         setTimeout(() => setIsConnected(true), 1000);
