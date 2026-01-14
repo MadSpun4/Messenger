@@ -65,6 +65,27 @@ const MessagePage: React.FC<MessagePageProps> = ({
 
   const isCreator = reqUser.id === chat.createdBy.id;
 
+  // Функция для получения отображаемого имени чата
+  const getChatDisplayName = () => {
+    if (chat.isGroup) {
+      return chat.chatName || "Group Chat";
+    } else {
+      // Для личного чата: находим собеседника (не текущего пользователя)
+      const otherUser = chat.users?.find(user => user.id !== reqUser.id);
+      return otherUser?.fullName || "Chat";
+    }
+  };
+
+  // Функция для получения буквы для аватара
+  const getAvatarLetter = () => {
+    if (chat.isGroup) {
+      return chat.chatName?.charAt(0)?.toUpperCase() || "G";
+    } else {
+      const otherUser = chat.users?.find(user => user.id !== reqUser.id);
+      return otherUser?.fullName?.charAt(0)?.toUpperCase() || "U";
+    }
+  };
+
   const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) =>
     setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -103,15 +124,18 @@ const MessagePage: React.FC<MessagePageProps> = ({
     setNewMessage(newMessage + e.emoji);
   };
 
+  const chatDisplayName = getChatDisplayName();
+  const avatarLetter = getAvatarLetter();
+
   return (
     <div className={styles.outerMessagePageContainer}>
       <div className={styles.messagePageHeaderContainer}>
         <div className={styles.messagePageInnerHeaderContainer}>
           <div className={styles.messagePageHeaderNameContainer}>
             <Avatar sx={{ width: 40, height: 40, mr: 1 }}>
-              {chat.chatName.charAt(0)}
+              {avatarLetter}
             </Avatar>
-            <p>{chat.chatName}</p>
+            <p>{chatDisplayName}</p>
           </div>
           <div className={styles.messagePageHeaderNameContainer}>
             {!searchMode && (
